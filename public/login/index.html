@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>Quick Survey</title>
+</head>
+
+<body>
+    <h1>Welcome</h1>
+    <form id="login">
+        <p>
+            <label for="username">Username</label>
+            <input type="text" id="username">
+        </p>
+        <p>
+            <label for="password">Password</label>
+            <input type="password" id="password">
+        </p>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        const cookies = Object.fromEntries(document.cookie
+            .split(/\s*;\s*/)
+            .map(c => {
+                const ieq = c.indexOf("=");
+                return [c.slice(0, ieq), c.slice(ieq + 1)];
+            }));
+        if (cookies.access_token || cookies.refresh_token) {
+            // XXX copy-pasta'd from below
+            const goto = location.search
+                .replace(/^\?/, "")
+                .split("&")
+                .find(x => x.match(/^goto=/))
+                ?.split("=")[1]
+            window.location = goto ? decodeURIComponent(goto) : "/admin";
+        }
+
+        document.querySelector("#login").onsubmit = async (e) => {
+            e.preventDefault();
+
+            const username = document.querySelector("#username").value;
+            const password = document.querySelector("#password").value;
+
+            const ONE_YEAR = 60 * 60 * 24 * 365;
+
+            const resp = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    Authorization: "Basic " + btoa(username + ":" + password),
+                },
+            });
+            if (resp.status === 401) {
+                alert("Bad credentials");
+                return;
+            }
+            if (resp.status !== 200) {
+                alert("there was an error...");
+                return;
+            }
+
+            const { access_token, refresh_token, expires_in } = await resp.json();
+            document.cookie = `access_token=${access_token};max-age=${expires_in};path=/`;
+            document.cookie = `refresh_token=${refresh_token};max-age=${ONE_YEAR};path=/`;
+
+            // XXX copy-pasta'd from /edit
+            const goto = location.search
+                .replace(/^\?/, "")
+                .split("&")
+                .find(x => x.match(/^goto=/))
+                ?.split("=")[1]
+            window.location = goto ? decodeURIComponent(goto) : "/admin";
+        };
+    </script>
+</body>
+
+</html>

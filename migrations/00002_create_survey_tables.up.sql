@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS survey (
+    id INTEGER PRIMARY KEY,
+    `version` INTEGER DEFAULT 1,
+    title VARCHAR(255) NOT NULL CHECK (LENGTH(title) > 0),
+    `description` TEXT NOT NULL ON CONFLICT REPLACE DEFAULT ''
+);
+
+CREATE TABLE IF NOT EXISTS survey_field (
+  id INTEGER PRIMARY KEY,
+  `version` INTEGER DEFAULT 1,
+  survey_id INTEGER NOT NULL REFERENCES survey(id)
+    ON UPDATE CASCADE
+    ON DELETE RESTRICT,
+  `type` VARCHAR(20) NOT NULL CHECK (LENGTH(`type`) > 0),
+  `name` VARCHAR(255) NOT NULL CHECK (LENGTH(`name`) > 0 AND REPLACE(LOWER(label), ' ', '_') = label),
+  label VARCHAR(255) NOT NULL CHECK (LENGTH(label) > 0),
+  `required` INT(1) DEFAULT 0,
+  options TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',
+  UNIQUE (survey_id, `name`)
+);

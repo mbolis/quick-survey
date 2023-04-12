@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>Quick Survey</title>
+</head>
+
+<body>
+    <h1 class="title"></h1>
+    <p class="description"></p>
+
+    <button id="viz" disabled="disabled">VIZ!</button>
+
+    <table id="submissions" style="border-collapse:collapse;border:1px dotted black;">
+        <thead>
+            <tr class="head-row">
+                <th></th>
+                <th class="field" style="display:none;border:1px dotted black;">
+                    <span class="field-label"></span>
+                    <input type="checkbox" class="field-viz">
+                    <select class="field-viz-mode" style="display:none">
+                        <option value="histogram">Histogram</option>
+                        <option value="pie">Pie chart</option>
+                        <option value="tag-cloud">Tag cloud</option>
+                    </select>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="submissions-row" style="display:none">
+                <th scope="row" class="id"></th>
+                <td class="field" style="border:1px dotted black;"></td>
+            </tr>
+        </tbody>
+    </ul>
+
+    <div id="viz_box" style="display:none">
+        <div class="viz-row">
+            <h2 class="label"></h2>
+            <p class="answer" style="max-width:600px"></p>
+        </div>
+    </div>
+
+    <script src="/lib/chart.umd.min.js"></script>
+    <script src="/lib/d3.min.js"></script>
+    <script src="/lib/d3.layout.cloud.js"></script>
+    <script src="/lib/stopwords.js"></script>
+    <script src="/lib/randomColor.min.js"></script>
+    <script src="/admin/submissions/app.js"></script>
+</body>
+
+</html>

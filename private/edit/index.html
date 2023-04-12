@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>Quick Survey</title>
+</head>
+
+<body>
+    <a href="/admin">Back</a>
+
+    <h1 id="main_title"></h1>
+    <button type="button" id="delete" style="display:none">Delete</button>
+    <form id="editor" style="display:none">
+        <p>
+            <label for="title">Title</label>
+            <input type="text" id="title" required>
+        </p>
+        <p>
+            <label for="description">Description</label>
+            <textarea id="description"></textarea>
+        </p>
+
+        <h2>Fields</h2>
+        <button type="button" id="add">Add</button>
+        <ul id="fields">
+            <li class="fields-item" style="display:none">
+                <p class="label">
+                    <label>Label</label>
+                    <input type="text" required>
+                </p>
+                <p class="type">
+                    <label>Type</label>
+                    <select required>
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="textarea">Textarea</option>
+                        <option value="select">Select</option>
+                    </select>
+                </p>
+                <p class="options" style="display:none">
+                    <textarea></textarea>
+                </p>
+                <p class="required">
+                    <label>Required</label>
+                    <input type="checkbox" value="1">
+                </p>
+                <p>
+                    <button type="button" class="up">Up</button>
+                    <button type="button" class="down">Down</button>
+                    <button type="button" class="remove">Remove</button>
+                </p>
+            </li>
+        </ul>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
