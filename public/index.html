@@ -10,17 +10,27 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>Quick Survey</title>
+
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-    <h1>QuickSurvey!</h1>
+    <h1 class="main-title">QuickSurvey</h1>
+    <p class="subtitle">Share what you think, now!</p>
     <div id="survey" style="display:none">
-        <h2 class="title"></h2>
-        <p class="description"></p>
-        <form class="form">
-            <fieldset class="fields"></fieldset>
-            <button type="submit">Submit</button>
-        </form>
+        <div class="survey-container">
+            <h2 class="title"></h2>
+            <p class="description"></p>
+            <form class="form">
+                <fieldset class="fields">
+                    <p class="field" style="display:none">
+                        <label></label>
+                        <span class="field-container"></span>
+                    </p>
+                </fieldset>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
     </div>
 
     <script src="app.js"></script>

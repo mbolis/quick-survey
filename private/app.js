@@ -31,8 +31,8 @@ async function startup() {
 
             li.querySelector(".title").textContent = `#${s.id}: ${s.title}`;
             li.querySelector(".description").innerHTML = s.description || "";
-            li.querySelector(".edit").href = "edit?id=" + s.id;
-            li.querySelector(".submissions").href = "submissions?id=" + s.id;
+            li.querySelector(".edit").href = "/admin/edit?id=" + s.id;
+            li.querySelector(".submissions").href = "/admin/submissions?id=" + s.id;
 
             ul.append(li);
         }

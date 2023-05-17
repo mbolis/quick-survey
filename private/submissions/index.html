@@ -10,41 +10,60 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>Quick Survey</title>
+
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/admin/style.css">
 </head>
 
 <body>
+    <nav>
+        <a href="/admin">Back</a>
+    </nav>
+
     <h1 class="title"></h1>
     <p class="description"></p>
 
-    <button id="viz" disabled="disabled">VIZ!</button>
+    <div class="main-content">
+        <div class="buttons-bar">
+            <button id="viz" class="fullsize" disabled="disabled">VIZ!</button>
+        </div>
+        
+        <div class="form-info">
+            <table id="submissions">
+                <thead>
+                    <tr class="head-row">
+                        <th></th>
+                        <th class="field" style="display:none">
+                            <div class="wrapper">
+                                <div class="field-viz-mode-wrapper">
+                                    <select class="field-viz-mode" style="display:none">
+                                        <option value="histogram">Histogram</option>
+                                        <option value="pie">Pie chart</option>
+                                        <option value="tag-cloud">Tag cloud</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="field-label"></span>
+                                    <input type="checkbox" class="field-viz">
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="submissions-row" style="display:none">
+                        <th scope="row" class="id"></th>
+                        <td class="field" style="border:1px dotted black;"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-    <table id="submissions" style="border-collapse:collapse;border:1px dotted black;">
-        <thead>
-            <tr class="head-row">
-                <th></th>
-                <th class="field" style="display:none;border:1px dotted black;">
-                    <span class="field-label"></span>
-                    <input type="checkbox" class="field-viz">
-                    <select class="field-viz-mode" style="display:none">
-                        <option value="histogram">Histogram</option>
-                        <option value="pie">Pie chart</option>
-                        <option value="tag-cloud">Tag cloud</option>
-                    </select>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="submissions-row" style="display:none">
-                <th scope="row" class="id"></th>
-                <td class="field" style="border:1px dotted black;"></td>
-            </tr>
-        </tbody>
-    </ul>
-
-    <div id="viz_box" style="display:none">
-        <div class="viz-row">
-            <h2 class="label"></h2>
-            <p class="answer" style="max-width:600px"></p>
+        <div id="viz_box" class="form-info" style="display:none">
+            <div class="viz-row">
+                <h2 class="label"></h2>
+                <p class="answer" style="max-width:600px"></p>
+            </div>
         </div>
     </div>
 

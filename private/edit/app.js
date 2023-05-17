@@ -212,7 +212,7 @@ async function startup() {
           f.options = null;
         } else {
           try {
-            f.options = JSON.parse(f.options);
+            f.options = JSON.parse(this.value); // XXX there was a bug here, very tricky to fix because of code duplication!
           } catch (err) {
             f.options = err;
           }
@@ -277,6 +277,8 @@ async function startup() {
       Object.assign(type.querySelector("select"), {
         id: "field_" + id + "_type",
         onchange() {
+          f.type = this.value;
+
           const options = li.querySelector(".options");
           const optionsInput = options.querySelector("textarea");
           if (this.value === "select") {
@@ -295,9 +297,9 @@ async function startup() {
           f.options = null;
         } else {
           try {
-            f.options = JSON.parse(f.options);
+            f.options = JSON.parse(this.value);
           } catch (err) {
-            f.options = err;
+            f.options = err; // TODO handle error
           }
         }
       };
@@ -307,7 +309,7 @@ async function startup() {
       Object.assign(label.querySelector("input"), {
         id: "field_" + id + "_label",
         oninput() {
-          f.label = this.value;
+          f.required = this.checked;
         },
       });
 
@@ -330,8 +332,8 @@ async function startup() {
         survey.fields.splice(survey.fields.indexOf(f), 1);
       };
 
-      survey.fields.unshift(f);
-      ul.prepend(li);
+      survey.fields.push(f);
+      ul.append(li);
     };
 
     if (surveyId) {

@@ -1,0 +1,138 @@
+button:not(.fullsize) {
+  font-size: 12px;
+  padding: 0.25em 0.5em;
+}
+
+body {
+  text-align: center;
+}
+nav {
+  text-align: left;
+}
+
+.main-content {
+  display: inline-block;
+  max-width: 800px;
+  width: 100%;
+}
+
+.fields-wrapper {
+  display: inline-block;
+  max-width: 800px;
+  width: 100%;
+}
+
+.buttons-bar {
+  display: block;
+  text-align: right;
+  width: 100%;
+}
+
+.form-info {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 7px 0 silver;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1em;
+  max-width: 800px;
+  padding: 1em;
+  width: 100%;
+}
+.form-info > .field {
+  align-items: center;
+  display: inline-flex;
+  gap: 1em;
+  justify-content: center;
+}
+.form-info > .field > * {
+  flex: 1;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+ul > li {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 7px 0 silver;
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 1em;
+  max-width: 800px;
+  padding: 1em;
+  width: 100%;
+}
+
+.ctrl-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  margin: 0;
+}
+
+button#delete,
+button.remove {
+  background-color: firebrick;
+}
+
+#submissions {
+  border: 0;
+  border-collapse: collapse;
+  margin: -0.75em -1.5em;
+  width: 100%;
+}
+#submissions th,
+#submissions td {
+  border: 1px solid rgba(0, 0, 128, 0.3);
+  padding: 0.25em 0.5em;
+}
+#submissions th:first-child,
+#submissions td:first-child {
+  border-left: 0;
+}
+#submissions th:last-child,
+#submissions td:last-child {
+  border-right: 0;
+}
+#submissions > thead th {
+  border-top: 0;
+}
+#submissions > thead th:first-child {
+  min-width: 1em;
+}
+#submissions > tbody > tr:last-child td,
+#submissions > tbody > tr:last-child th {
+  border-bottom: 0;
+}
+#submissions > thead th.field {
+  vertical-align: top;
+}
+#submissions > thead th.field .wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-content: flex-start;
+}
+#submissions > thead .field-viz-mode-wrapper {
+  font-size: 0;
+  height: 0;
+}
+#submissions > thead select.field-viz-mode {
+  background-color: azure;
+  border: 1px solid cornflowerblue;
+  border-radius: 4px;
+  box-shadow: 0 0 0 5px white, 0 -4px 4px 0 silver;
+  color: royalblue;
+  font-size: 10px;
+  height: 14px;
+  margin-top: -16px;
+  padding: 0 0.5em;
+}

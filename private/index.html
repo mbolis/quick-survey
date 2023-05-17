@@ -10,22 +10,29 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>Quick Survey</title>
+
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/admin/style.css">
 </head>
 
 <body>
     <h1>Admin</h1>
 
-    <button id="add">Add Survey</button>
-    <ul id="surveys">
-        <li class="surveys-item" style="display:none">
-            <h3 class="title"></h3>
-            <p class="description"></p>
-            <p>
-                <a href="#" class="edit">Edit</a>
-                <a href="#" class="submissions">Show submissions</a>
-            </p>
-        </li>
-    </ul>
+    <div class="fields-wrapper">
+        <div class="buttons-bar">
+            <button id="add" class="fullsize">Add Survey</button>
+        </div>
+        <ul id="surveys">
+            <li class="surveys-item" style="display:none">
+                <h3 class="title"></h3>
+                <p class="description"></p>
+                <p>
+                    <a href="#" class="edit">Edit</a>
+                    <a href="#" class="submissions">Show submissions</a>
+                </p>
+            </li>
+        </ul>
+    </div>
 
     <script src="/admin/app.js"></script>
 </body>

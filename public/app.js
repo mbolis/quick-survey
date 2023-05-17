@@ -1,5 +1,9 @@
 "use strict"
 
+const fieldTpl = document.querySelector(".field");
+fieldTpl.remove();
+fieldTpl.style.display = "";
+
 async function render(el, surveyId) {
     el = document.querySelector(el);
     if (!el) throw new Error("root element not found");
@@ -68,9 +72,16 @@ async function render(el, surveyId) {
         for (const f of survey.fields || []) {
             const id = "field_" + f.name;
 
-            const label = document.createElement("label");
+            const fieldEl = fieldTpl.cloneNode(true);
+            if (f.required) {
+                fieldEl.classList.add("required");
+            }
+
+            const label = fieldEl.querySelector("label");
             label.htmlFor = id;
             label.textContent = f.label;
+
+            const fieldContainer = fieldEl.querySelector(".field-container");
 
             let input;
             switch (f.type) {
@@ -123,10 +134,8 @@ async function render(el, surveyId) {
                     break;
             }
 
-            const row = document.createElement("p");
-            row.append(label, input);
-
-            fieldsEl.append(row);
+            fieldContainer.append(input);
+            fieldsEl.append(fieldEl);
         }
 
         el.style.display = "block";

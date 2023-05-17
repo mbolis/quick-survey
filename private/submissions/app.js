@@ -54,7 +54,6 @@ async function startup() {
     document.querySelector(".description").innerHTML = survey.description || "";
 
     for (const f of survey.fields || []) {
-      console.log(f)
       const th = fieldHeaderTpl.cloneNode(true);
 
       th.querySelector(".field-label").textContent = f.label;
@@ -70,6 +69,12 @@ async function startup() {
         } else {
           vizMode.style.display = "none";
           viz.fields[f.name] = null;
+        }
+        
+        if (!!Object.values(viz.fields).filter(x => x).length) {
+          document.querySelector("#viz").disabled = false;
+        } else {
+          document.querySelector("#viz").disabled = true;
         }
       };
 
@@ -105,7 +110,7 @@ async function startup() {
     }
 
     Object.assign(document.querySelector("#viz"), {
-      disabled: false,
+      disabled: true,
       onclick() {
         const table = document.querySelector("#submissions");
         const vizBox = document.querySelector("#viz_box");
@@ -114,18 +119,17 @@ async function startup() {
         if (viz.active) {
           viz.active = false;
           this.textContent = "VIZ!";
-          table.style.display = "";
+          table.parentElement.style.display = "";
           vizBox.style.display = "none";
           
         } else {
           viz.active = true;
           this.textContent = "<- Data";
-          table.style.display = "none";
+          table.parentElement.style.display = "none";
           vizBox.style.display = "";
 
           // viz whiz!!!
           for (const f of survey.fields || []) {
-            console.log("field")
             if (!viz.fields[f.name]) continue;
 
             // extract field values
@@ -143,7 +147,6 @@ async function startup() {
               })
               // aggregate values
               .reduce((aggr, value) => {
-                console.log(f.name, viz.fields[f.name], value)
                 if (viz.fields[f.name] === "tag-cloud") {
                   // prepare tag cloud
                   const words = value

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS survey_field (
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
   `type` VARCHAR(20) NOT NULL CHECK (LENGTH(`type`) > 0),
-  `name` VARCHAR(255) NOT NULL CHECK (LENGTH(`name`) > 0 AND REPLACE(LOWER(label), ' ', '_') = label),
+  `name` VARCHAR(255) NOT NULL CHECK (LENGTH(`name`) > 0 AND REPLACE(LOWER(name), ' ', '_') = name),
   label VARCHAR(255) NOT NULL CHECK (LENGTH(label) > 0),
   `required` INT(1) DEFAULT 0,
   options TEXT NOT NULL ON CONFLICT REPLACE DEFAULT '',

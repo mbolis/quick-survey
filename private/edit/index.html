@@ -10,57 +10,69 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>Quick Survey</title>
+
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/admin/style.css">
 </head>
 
 <body>
-    <a href="/admin">Back</a>
+    <nav>
+        <a href="/admin">Back</a>
+    </nav>
 
     <h1 id="main_title"></h1>
-    <button type="button" id="delete" style="display:none">Delete</button>
     <form id="editor" style="display:none">
-        <p>
-            <label for="title">Title</label>
-            <input type="text" id="title" required>
-        </p>
-        <p>
-            <label for="description">Description</label>
-            <textarea id="description"></textarea>
-        </p>
+        <div class="form-info">
+            <p class="buttons-bar">
+                <button type="button" id="delete" style="display:none">Delete</button>
+            </p>
+            <p class="field">
+                <label for="title">Title</label>
+                <input type="text" id="title" required>
+            </p>
+            <p class="field">
+                <label for="description">Description</label>
+                <textarea id="description"></textarea>
+            </p>
+        </div>
 
-        <h2>Fields</h2>
-        <button type="button" id="add">Add</button>
-        <ul id="fields">
-            <li class="fields-item" style="display:none">
-                <p class="label">
-                    <label>Label</label>
-                    <input type="text" required>
-                </p>
-                <p class="type">
-                    <label>Type</label>
-                    <select required>
-                        <option value="text">Text</option>
-                        <option value="number">Number</option>
-                        <option value="checkbox">Checkbox</option>
-                        <option value="textarea">Textarea</option>
-                        <option value="select">Select</option>
-                    </select>
-                </p>
-                <p class="options" style="display:none">
-                    <textarea></textarea>
-                </p>
-                <p class="required">
-                    <label>Required</label>
-                    <input type="checkbox" value="1">
-                </p>
-                <p>
-                    <button type="button" class="up">Up</button>
-                    <button type="button" class="down">Down</button>
-                    <button type="button" class="remove">Remove</button>
-                </p>
-            </li>
-        </ul>
-
-        <button type="submit">Save</button>
+        <div class="fields-wrapper">
+            <h2>Fields</h2>
+            <ul id="fields">
+                <li class="fields-item" style="display:none">
+                    <p class="field label">
+                        <label>Label</label>
+                        <input type="text" required>
+                    </p>
+                    <p class="field type">
+                        <label>Type</label>
+                        <select required>
+                            <option value="text">Text</option>
+                            <option value="number">Number</option>
+                            <option value="checkbox">Checkbox</option>
+                            <option value="textarea">Textarea</option>
+                            <option value="select">Select</option>
+                        </select>
+                    </p>
+                    <p class="field options" style="display:none">
+                        <textarea></textarea>
+                    </p>
+                    <p class="field required">
+                        <label>Required</label>
+                        <input type="checkbox" value="1">
+                    </p>
+                    <p class="ctrl-buttons">
+                        <button type="button" class="up">Up</button>
+                        <button type="button" class="down">Down</button>
+                        <button type="button" class="remove">Remove</button>
+                    </p>
+                </li>
+            </ul>
+            <div class="buttons-bar">
+                <button type="button" id="add">Add</button>
+            </div>
+            <button type="submit" class="fullsize">Save</button>
+        </div>
     </form>
 
     <script src="app.js"></script>
