@@ -93,7 +93,7 @@ button:active {
 button[disabled] {
   background-color: #646470 !important;
   border: 1px solid #9797b9 !important;
-  box-shadow: 0 0 5px 0 #6e7074 !important;
+  box-shadow: 0 0 5px 0 #989aa0 !important;
   cursor: default;
   text-shadow: none !important;
 }

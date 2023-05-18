@@ -48,6 +48,9 @@ async function render(el, surveyId) {
                     },
                     body: JSON.stringify(submission),
                 });
+                if (resp.status === 409) {
+                    throw new Error("Una risposta è già pervenuta da questo IP");
+                }
                 if (resp.status !== 201) {
                     throw new Error("could not send submission: " + await resp.text());
                 }
@@ -57,11 +60,17 @@ async function render(el, surveyId) {
 
             } catch (err) {
                 console.error(err);
-                alert("There was an error!\n" + err.message);
+                alert(err.message);
             }
         };
 
-        // TODO what if there was a way to show a message instead of the form, if a submission was already sent?
+        if (survey.submitted) {
+            el.querySelector(".survey-container").innerHTML = `
+                <p>You already submitted your entry to this survey</p>
+                <p><strong>Thank you!</strong></p>`;
+            el.style.display = "";
+            return;
+        }
 
         el.querySelector(".title").textContent = survey.title || "";
         el.querySelector(".description").innerHTML = (survey.description || "") // XXX DON'T DO THIS!!!
@@ -142,7 +151,7 @@ async function render(el, surveyId) {
 
     } catch (err) {
         console.error(err);
-        alert("There was an error!\n" + err.message);
+        alert(err.message);
     }
 
 }

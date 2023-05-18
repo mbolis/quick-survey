@@ -57,7 +57,7 @@ ul {
   padding: 0;
   text-align: center;
 }
-ul > li {
+ul.card-list > li {
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 2px 7px 0 silver;
@@ -79,7 +79,8 @@ ul > li {
 }
 
 button#delete,
-button.remove {
+button.remove,
+button.remove-option {
   background-color: firebrick;
 }
 
@@ -135,4 +136,56 @@ button.remove {
   height: 14px;
   margin-top: -16px;
   padding: 0 0.5em;
+}
+
+.fields-item {
+  gap: 0.5em;
+}
+.fields-item .field {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+
+.options-item {
+  border: 1px solid silver;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 2px;
+  padding: 0.5em;
+}
+.options-item > .option-element-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.options-item > .option-element-wrapper > .option-element {
+  font-size: 12px;
+  margin: 0.5em 0;
+}
+.options-item > .option-element-wrapper > .option-element input {
+  font-size: 12px;
+  max-width: 80px;
+}
+.options-item > .ctrl-buttons {
+  justify-content: center;
+}
+.options-item > .ctrl-buttons > button {
+  font-size: 12px;
+  font-weight: bolder;
+  padding: 0 0.25em;
+}
+
+#viz_box {
+  align-items: stretch;
+}
+#viz_box > .viz-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#viz_box > .viz-row .answer {
+  max-width: 600px;
+  width: 100%;
 }

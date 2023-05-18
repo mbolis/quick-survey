@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/mbolis/quick-survey/database"
+	"github.com/mbolis/quick-survey/log"
 	"github.com/mbolis/quick-survey/routes"
 )
 
 func main() {
+
 	db, err := database.Open()
 	if err != nil {
 		panic(err) // TODO handle better
@@ -33,5 +35,6 @@ func runServer(handler http.Handler) error {
 		WriteTimeout: 30 * time.Second,
 	}
 
+	log.Info("Listening on http://localhost:8080") // TODO here too
 	return srv.ListenAndServe()
 }

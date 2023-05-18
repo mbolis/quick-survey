@@ -23,9 +23,9 @@
     <h1 id="main_title"></h1>
     <form id="editor" style="display:none">
         <div class="form-info">
-            <p class="buttons-bar">
+            <div class="buttons-bar">
                 <button type="button" id="delete" style="display:none">Delete</button>
-            </p>
+            </div>
             <p class="field">
                 <label for="title">Title</label>
                 <input type="text" id="title" required>
@@ -38,13 +38,13 @@
 
         <div class="fields-wrapper">
             <h2>Fields</h2>
-            <ul id="fields">
+            <ul id="fields" class="card-list">
                 <li class="fields-item" style="display:none">
-                    <p class="field label">
+                    <div class="field label">
                         <label>Label</label>
                         <input type="text" required>
-                    </p>
-                    <p class="field type">
+                    </div>
+                    <div class="field type">
                         <label>Type</label>
                         <select required>
                             <option value="text">Text</option>
@@ -53,14 +53,36 @@
                             <option value="textarea">Textarea</option>
                             <option value="select">Select</option>
                         </select>
-                    </p>
-                    <p class="field options" style="display:none">
-                        <textarea></textarea>
-                    </p>
-                    <p class="field required">
+                    </div>
+                    <div class="field options" style="display:none">
+                        <label>Options</label>
+                        <ul class="options-list">
+                            <li class="options-item" style="display:none">
+                                <div class="option-element-wrapper">
+                                    <div class="option-element label">
+                                        <label>Label</label>
+                                        <input type="text" required>
+                                    </div>
+                                    <div class="option-element value">
+                                        <label>Value</label>
+                                        <input type="text" required>
+                                    </div>
+                                </div>
+                                <p class="ctrl-buttons">
+                                    <button type="button" class="up-option">&uparrow;</button>
+                                    <button type="button" class="down-option">&downarrow;</button>
+                                    <button type="button" class="remove-option">&times;</button>
+                                </p>
+                            </li>
+                        </ul>
+                        <div class="buttons-bar">
+                            <button type="button" class="add-option">Add</button>
+                        </div>
+                    </div>
+                    <div class="field required">
                         <label>Required</label>
                         <input type="checkbox" value="1">
-                    </p>
+                    </div>
                     <p class="ctrl-buttons">
                         <button type="button" class="up">Up</button>
                         <button type="button" class="down">Down</button>

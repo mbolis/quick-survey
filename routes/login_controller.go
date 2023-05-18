@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/oauth"
 	"github.com/mbolis/quick-survey/httpx"
+	"github.com/mbolis/quick-survey/log"
 )
 
 func NewBearerServer(db *sql.DB) *oauth.BearerServer {
@@ -23,7 +24,7 @@ func Login(bearerServer *oauth.BearerServer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
 		if !ok {
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			httpx.LogStatus(w, http.StatusUnauthorized, log.DebugLevel, "login.basic_auth")
 			return
 		}
 
@@ -44,7 +45,7 @@ func Refresh(bearerServer *oauth.BearerServer) http.HandlerFunc {
 		auth := r.Header.Get("authorization")
 		match := regexp.MustCompile(`(?i)^refresh\s+(.*)`).FindStringSubmatch(auth)
 		if len(match) == 0 {
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			httpx.LogStatus(w, http.StatusUnauthorized, log.DebugLevel, "reftresh.token")
 			return
 		}
 		token := match[1]
@@ -56,7 +57,7 @@ func Refresh(bearerServer *oauth.BearerServer) http.HandlerFunc {
 
 		req, err := http.NewRequest("POST", "/", strings.NewReader(body.Encode()))
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			httpx.LogStatus(w, http.StatusInternalServerError, log.DebugLevel, "refresh.new_request")
 			return
 		}
 		req.Header.Set("content-type", "application/x-www-form-urlencoded")

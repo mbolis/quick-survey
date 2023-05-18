@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/mbolis/quick-survey/httpx"
+	"github.com/mbolis/quick-survey/log"
 	"github.com/mbolis/quick-survey/model"
 )
 
@@ -18,59 +20,80 @@ func PublicGetSurveyById(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			httpx.LogStatus(w, http.StatusBadRequest, log.DebugLevel, "request.get_url_param.id")
 			return
 		}
 
 		rows, err := db.QueryContext(r.Context(), `
 			SELECT
 				s.title, s.description,
+				sub.ip,
 				f.id, f.type, f.name, f.label, f.required, f.options
 			FROM survey s
+			LEFT OUTER JOIN submission sub ON (s.id = sub.survey_id)
 			LEFT OUTER JOIN survey_field f ON (s.id = f.survey_id)
 			WHERE s.id = ?`,
 			surveyId,
 		)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			httpx.LogInternalError(w, "db.get_survey", err)
 			return
 		}
 		defer rows.Close()
 
 		if !rows.Next() {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			httpx.LogNotFound(w, "get_survey", surveyId)
 			return
 		}
 
-		s := model.Survey{}
+		// TODO find a cleaner way?
+		survey := model.Survey{}
+		var ip string
+		var dummy string
+		err = rows.Scan(
+			&survey.Title, &survey.Description,
+			&ip,
+			&dummy, &dummy, &dummy, &dummy, &dummy, &dummy,
+		)
+		if err != nil {
+			httpx.LogInternalError(w, "db.get_survey.ip", err)
+			return
+		}
+		if ip == strings.Split(r.RemoteAddr, ":")[0] {
+			survey.Submitted = true
+			render.JSON(w, r, survey)
+			return
+		}
+
 		for {
 			f := model.SurveyField{}
 			var opts string
 			err = rows.Scan(
-				&s.Title, &s.Description,
+				&survey.Title, &survey.Description,
+				&dummy,
 				&f.ID, &f.Type, &f.Name, &f.Label, &f.Required, &opts,
 			)
 			if err != nil {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				httpx.LogInternalError(w, "db.get_survey.scan", err)
 				return
 			}
 
 			if opts != "" {
 				err = json.Unmarshal([]byte(opts), &f.Options)
 				if err != nil {
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					httpx.LogInternalError(w, "db.get_survey.parse_options", err)
 					return
 				}
 			}
 
-			s.Fields = append(s.Fields, f)
+			survey.Fields = append(survey.Fields, f)
 
 			if !rows.Next() {
 				break
 			}
 		}
 
-		render.JSON(w, r, s)
+		render.JSON(w, r, survey)
 	}
 }
 
@@ -97,10 +120,16 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 	}()
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		submission := model.Submission{}
-		err := render.DecodeJSON(r.Body, &submission)
+		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			httpx.LogStatus(w, http.StatusBadRequest, log.DebugLevel, "request.get_url_param.id")
+			return
+		}
+
+		submission := model.Submission{}
+		err = render.DecodeJSON(r.Body, &submission)
+		if err != nil {
+			httpx.LogStatus(w, http.StatusBadRequest, log.DebugLevel, "request.parse_body")
 			return
 		}
 
@@ -108,20 +137,11 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 
 		tx, err := db.BeginTx(r.Context(), nil)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			httpx.LogInternalError(w, "db.begin_tx", err)
 			return
 		}
 		defer tx.Rollback()
 
-		// get survey
-		// XXX begin copy-pasta
-		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
-		}
-
-		// change here: use current transaction
 		rows, err := tx.QueryContext(r.Context(), `
 			SELECT
 				s.title, s.description,
@@ -133,16 +153,20 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 		)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+				httpx.LogNotFound(w, "get_survey", surveyId)
 			} else {
-				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				httpx.LogInternalError(w, "db.get_survey", err)
 			}
 			return
 		}
 		defer rows.Close()
 
+		if !rows.Next() {
+			httpx.LogNotFound(w, "get_survey", surveyId)
+		}
+
 		survey := model.Survey{}
-		for rows.Next() {
+		for {
 			f := model.SurveyField{}
 			var opts string
 			err = rows.Scan(
@@ -150,19 +174,23 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 				&f.Type, &f.Label, &f.Required, &opts,
 			)
 			if err != nil {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				httpx.LogInternalError(w, "db.get_survey.scan", err)
 				return
 			}
 
 			if opts != "" {
 				err = json.Unmarshal([]byte(opts), &f.Options)
 				if err != nil {
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					httpx.LogInternalError(w, "db.get_survey.parse_options", err)
 					return
 				}
 			}
 
 			survey.Fields = append(survey.Fields, f)
+
+			if !rows.Next() {
+				break
+			}
 		}
 
 		// TODO move to own module
@@ -171,7 +199,7 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 		validateIpDone := make(chan bool)
 		validateIpStart <- IpCheck{true, ip, validateIpDone}
 		if <-validateIpDone {
-			http.Error(w, "Una risposta è già pervenuta da questo IP", http.StatusConflict) // TODO i18n
+			httpx.LogStatus(w, http.StatusConflict, log.DebugLevel, "ip.already_submitted")
 			return
 		}
 		defer func() { validateIpStart <- IpCheck{false, ip, nil} }()
@@ -185,11 +213,11 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 			ip,
 		).Scan(&alreadySubmitted)
 		if err != nil && !errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, "Una risposta è già pervenuta da questo IP", http.StatusInternalServerError)
+			httpx.LogInternalError(w, "db.get_ip.scan", err)
 			return
 		}
 		if alreadySubmitted {
-			http.Error(w, http.StatusText(http.StatusConflict), http.StatusConflict)
+			httpx.LogStatus(w, http.StatusConflict, log.DebugLevel, "ip.already_submitted")
 			return
 		}
 
@@ -202,7 +230,7 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 			ip,
 		).Scan(&submissionId)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			httpx.LogInternalError(w, "db.insert_submission", err)
 			return
 		}
 
@@ -210,7 +238,7 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 			INSERT INTO submission_field (submission_id, field_id, value)
 			VALUES (?, ?, ?)`)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			httpx.LogInternalError(w, "db.insert_submission.fields.prepare", err)
 			return
 		}
 		defer stmt.Close()
@@ -220,20 +248,20 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 			if f.Value != nil {
 				valueJson, err = json.Marshal(f.Value)
 				if err != nil {
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+					httpx.LogInternalError(w, "db.insert_submission.fields.parse_value", err)
 					return
 				}
 			}
 			_, err := stmt.ExecContext(r.Context(), submissionId, f.ID, string(valueJson))
 			if err != nil {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				httpx.LogInternalError(w, "db.insert_submission.fields.insert", err)
 				return
 			}
 		}
 
 		err = tx.Commit()
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			httpx.LogInternalError(w, "db.insert_submission.commit", err)
 			return
 		}
 

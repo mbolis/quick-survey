@@ -8,6 +8,7 @@ type Survey struct {
 	Title       string        `json:"title"`
 	Description string        `json:"description"`
 	Fields      []SurveyField `json:"fields"`
+	Submitted   bool          `json:"submitted,omitempty"`
 }
 
 type SurveyField struct {

@@ -4,22 +4,21 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/oauth"
-	"github.com/mbolis/quick-survey/routes/middlewares"
+	"github.com/mbolis/quick-survey/routes/middleware"
 )
 
 func Wire(db *sql.DB) http.Handler {
 	bearerServer := NewBearerServer(db)
 
 	root := chi.NewRouter()
-	root.Use(middleware.Logger, middleware.Recoverer)
+	root.Use(middleware.Default)
 
 	root.Mount("/api", apiRouter(db, bearerServer))
 
 	root.
-		With(middlewares.CookieAuth(bearerServer), middlewares.Admin).
+		With(middleware.CookieAuth(bearerServer), middleware.Admin).
 		Mount("/admin", servePrivateFiles("/admin"))
 	root.Mount("/", servePublicFiles())
 
@@ -33,7 +32,7 @@ func apiRouter(db *sql.DB, bearerServer *oauth.BearerServer) http.Handler {
 	api.Post(`/surveys/{id:^\d+$}/submissions`, PublicSubmitSurvey(db))
 
 	api.Route("/admin", func(r chi.Router) {
-		r.Use(middlewares.Admin)
+		r.Use(middleware.Admin)
 
 		// CRUD survey
 		r.Post("/surveys", CreateSurvey(db))

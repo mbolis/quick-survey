@@ -209,12 +209,12 @@ async function startup() {
               case "histogram": {
                 const canvas = document.createElement("canvas");
                 answer.append(canvas);
-                
+                console.log(dataset)
                 new Chart(canvas, {
                   type: "bar",
                   data: {
                     labels: dataset.map(r => r.label),
-                    datasets: [{ data: dataset.map(r => r.value) }],
+                    datasets: [{ label: f.label, data: dataset.map(r => r.value) }],
                   },
                 });
                 break;
@@ -233,13 +233,15 @@ async function startup() {
               }
               case "tag-cloud": {
                 const [min, max] = dataset.map(r => r.value).reduce(
-                  ([min, max], v) => [Math.min(min, v), Math.max(max, v)],
+                  ([min, max], v) => [Math.min(min, v - 1), Math.max(max, v)],
                   [+Infinity, -Infinity],
                 );
+                const delta = max - min;
                 const words = dataset.map(r => ({
                   text: r.label,
-                  size: Math.round(10 + 90 * (r.value - min) / (max - min)), // XXX a mysterious formula with fudgy magic numbers
+                  size: Math.round(10 + 90 * (r.value - min) / delta), // XXX a mysterious formula with fudgy magic numbers
                 }));
+                console.log(words)
                 const size = width < 400 ? [width, 600] : [width, 400];// XXX more magic numbers
                 d3.layout.cloud()
                   .size(size)

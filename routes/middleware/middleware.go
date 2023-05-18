@@ -1,4 +1,4 @@
-package middlewares
+package middleware
 
 import (
 	"encoding/json"
@@ -9,9 +9,19 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/oauth"
 	"github.com/mbolis/quick-survey/httpx"
+	"github.com/mbolis/quick-survey/log"
 )
+
+func Default(next http.Handler) http.Handler {
+	return chi.Chain(middleware.RequestLogger(logFormatter), middleware.Recoverer).Handler(next)
+}
+
+var logFormatter = &middleware.DefaultLogFormatter{
+	Logger: log.Logger,
+}
 
 // Admin middleware to check for the 'admin' role in an OAuth token.
 func Admin(next http.Handler) http.Handler {
