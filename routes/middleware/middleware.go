@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/oauth"
+	"github.com/mbolis/quick-survey/app"
 	"github.com/mbolis/quick-survey/httpx"
 	"github.com/mbolis/quick-survey/log"
 )
@@ -20,13 +21,14 @@ func Default(next http.Handler) http.Handler {
 }
 
 var logFormatter = &middleware.DefaultLogFormatter{
-	Logger: log.Logger,
+	Logger: log.Logger(),
 }
 
 // Admin middleware to check for the 'admin' role in an OAuth token.
-func Admin(next http.Handler) http.Handler {
-	// TODO move secret to config file
-	return chi.Chain(oauth.Authorize("secret", nil), admin).Handler(next)
+func Admin(app app.App) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return chi.Chain(oauth.Authorize(app.TokenSecret, nil), admin).Handler(next)
+	}
 }
 
 func admin(next http.Handler) http.Handler {
@@ -53,7 +55,7 @@ func admin(next http.Handler) http.Handler {
 	})
 }
 
-func CookieAuth(bearerServer *oauth.BearerServer) func(http.Handler) http.Handler {
+func CookieAuth(app app.App) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Method != "GET" {
@@ -108,7 +110,7 @@ func CookieAuth(bearerServer *oauth.BearerServer) func(http.Handler) http.Handle
 			req.Header.Set("content-length", strconv.Itoa(len(body.Encode())))
 
 			resp := httpx.NewResponseBuffer()
-			bearerServer.UserCredentials(resp, req)
+			app.UserCredentials(resp, req)
 			if resp.Status() == 401 {
 				// redirect to login page
 				w.Header().Set("location", loginLocation)

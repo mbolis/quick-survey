@@ -3,25 +3,20 @@ module github.com/mbolis/quick-survey
 go 1.18
 
 require (
-	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/oauth v0.0.0-20210913085627-d937e221b3ef
 	github.com/go-chi/render v1.0.2
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/sirupsen/logrus v1.9.2
 	golang.org/x/crypto v0.7.0
 )
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/go-chi/httplog v0.3.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/rs/zerolog v1.27.0 // indirect
-	github.com/sirupsen/logrus v1.9.2 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 )

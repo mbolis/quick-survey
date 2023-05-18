@@ -7,8 +7,13 @@ import (
 	"time"
 
 	"github.com/go-chi/oauth"
+	"github.com/mbolis/quick-survey/config"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func NewBearerServer(db *sql.DB, cfg config.Config) *oauth.BearerServer {
+	return oauth.NewBearerServer(cfg.TokenSecret, cfg.TokenTTL, CredentialsVerifier(db), nil)
+}
 
 type credentialsVerifier struct {
 	db *sql.DB

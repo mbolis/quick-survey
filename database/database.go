@@ -5,10 +5,11 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/mbolis/quick-survey/config"
 )
 
-func Open() (db *sql.DB, err error) {
-	db, err = sql.Open("sqlite3", "qsurvey.sqlite") // TODO pass in db name as parameter
+func Open(cfg config.Config) (db *sql.DB, err error) {
+	db, err = sql.Open("sqlite3", cfg.DBUrl)
 	if err != nil {
 		return
 	}

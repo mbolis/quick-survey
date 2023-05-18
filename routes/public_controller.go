@@ -11,12 +11,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/mbolis/quick-survey/app"
 	"github.com/mbolis/quick-survey/httpx"
 	"github.com/mbolis/quick-survey/log"
 	"github.com/mbolis/quick-survey/model"
 )
 
-func PublicGetSurveyById(db *sql.DB) http.HandlerFunc {
+func PublicGetSurveyById(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
@@ -24,7 +25,7 @@ func PublicGetSurveyById(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.QueryContext(r.Context(), `
+		rows, err := app.QueryContext(r.Context(), `
 			SELECT
 				s.title, s.description,
 				sub.ip,
@@ -103,7 +104,7 @@ type IpCheck struct {
 	result chan<- bool
 }
 
-func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
+func PublicSubmitSurvey(app app.App) http.HandlerFunc {
 	validateIpStart := make(chan IpCheck)
 	go func() {
 		submissionIPs := make(map[string]bool)
@@ -135,7 +136,7 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 
 		// TODO input validation, i.e. required fields
 
-		tx, err := db.BeginTx(r.Context(), nil)
+		tx, err := app.BeginTx(r.Context(), nil)
 		if err != nil {
 			httpx.LogInternalError(w, "db.begin_tx", err)
 			return
@@ -205,7 +206,7 @@ func PublicSubmitSurvey(db *sql.DB) http.HandlerFunc {
 		defer func() { validateIpStart <- IpCheck{false, ip, nil} }()
 		// check ip did not already submit
 		var alreadySubmitted bool
-		err = db.QueryRowContext(r.Context(), `
+		err = app.QueryRowContext(r.Context(), `
 			SELECT 1 FROM submission
 			WHERE survey_id = ?
 				AND ip = ?`,

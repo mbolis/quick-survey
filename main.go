@@ -5,36 +5,54 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/mbolis/quick-survey/app"
+	"github.com/mbolis/quick-survey/config"
 	"github.com/mbolis/quick-survey/database"
+	"github.com/mbolis/quick-survey/httpx"
 	"github.com/mbolis/quick-survey/log"
 	"github.com/mbolis/quick-survey/routes"
 )
 
 func main() {
-
-	db, err := database.Open()
+	cfg, err := config.ParseFlags()
 	if err != nil {
-		panic(err) // TODO handle better
+		log.Fatal("main.config:", err)
+	}
+	if cfg.Debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
+	db, err := database.Open(cfg)
+	if err != nil {
+		log.Fatal("main.db.open:", err)
 	}
 	defer db.Close()
 
-	handler := routes.Wire(db)
+	bearerServer := httpx.NewBearerServer(db, cfg)
 
-	err = runServer(handler)
+	app := app.App{
+		DB:           db,
+		BearerServer: bearerServer,
+		Config:       cfg,
+	}
+
+	handler := routes.Wire(app)
+
+	err = runServer(cfg, handler)
 	if !errors.Is(err, http.ErrServerClosed) {
-		panic(err)
+		log.Fatal("main.server:", err)
 	}
 }
 
-func runServer(handler http.Handler) error {
+func runServer(cfg config.Config, handler http.Handler) error {
 	srv := &http.Server{
-		Addr:         "0.0.0.0:8080", // TODO make this parametric
+		Addr:         cfg.Addr,
 		Handler:      handler,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	log.Info("Listening on http://localhost:8080") // TODO here too
+	log.Info("Listening on " + cfg.Url())
 	return srv.ListenAndServe()
 }

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/mbolis/quick-survey/app"
 	"github.com/mbolis/quick-survey/httpx"
 	"github.com/mbolis/quick-survey/log"
 	"github.com/mbolis/quick-survey/model"
@@ -18,7 +18,7 @@ import (
 
 var reNoIdent = regexp.MustCompile(`\W+`)
 
-func CreateSurvey(db *sql.DB) http.HandlerFunc {
+func CreateSurvey(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		survey := model.Survey{}
 		err := render.DecodeJSON(r.Body, &survey)
@@ -29,7 +29,7 @@ func CreateSurvey(db *sql.DB) http.HandlerFunc {
 
 		// TODO input validation
 
-		tx, err := db.BeginTx(r.Context(), nil)
+		tx, err := app.BeginTx(r.Context(), nil)
 		if err != nil {
 			httpx.LogInternalError(w, "db.begin_tx", err)
 			return
@@ -94,7 +94,6 @@ func CreateSurvey(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// write response
 		w.WriteHeader(http.StatusCreated)
 		render.JSON(w, r, map[string]any{
 			"id": surveyId,
@@ -102,9 +101,9 @@ func CreateSurvey(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func ListSurveys(db *sql.DB) http.HandlerFunc {
+func ListSurveys(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rows, err := db.QueryContext(r.Context(), `
+		rows, err := app.QueryContext(r.Context(), `
 		SELECT s.id, s.version, s.title, s.description
 		FROM survey s`)
 		if err != nil {
@@ -131,7 +130,7 @@ func ListSurveys(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func GetSurveyById(db *sql.DB) http.HandlerFunc {
+func GetSurveyById(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
@@ -139,7 +138,7 @@ func GetSurveyById(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.QueryContext(r.Context(), `
+		rows, err := app.QueryContext(r.Context(), `
 			SELECT
 				s.id, s.version, s.title, s.description,
 				f.type, f.name, f.label, f.required, f.options
@@ -191,7 +190,7 @@ func GetSurveyById(db *sql.DB) http.HandlerFunc {
 	}
 }
 
-func UpdateSurvey(db *sql.DB) http.HandlerFunc {
+func UpdateSurvey(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
@@ -206,7 +205,7 @@ func UpdateSurvey(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tx, err := db.BeginTx(r.Context(), nil)
+		tx, err := app.BeginTx(r.Context(), nil)
 		if err != nil {
 			httpx.LogInternalError(w, "db.begin_tx", err)
 			return
@@ -299,12 +298,11 @@ func UpdateSurvey(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// write response
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
-func DeleteSurvey(db *sql.DB) http.HandlerFunc {
+func DeleteSurvey(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
@@ -312,7 +310,7 @@ func DeleteSurvey(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		tx, err := db.BeginTx(r.Context(), nil)
+		tx, err := app.BeginTx(r.Context(), nil)
 		if err != nil {
 			httpx.LogInternalError(w, "db.begin_tx", err)
 			return
@@ -347,12 +345,11 @@ func DeleteSurvey(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		// write response
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
-func GetSurveySubmissions(db *sql.DB) http.HandlerFunc {
+func GetSurveySubmissions(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		surveyId, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
@@ -360,7 +357,7 @@ func GetSurveySubmissions(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
-		rows, err := db.QueryContext(r.Context(), `
+		rows, err := app.QueryContext(r.Context(), `
 			SELECT
 				sf.id, sf.time, sf.ip,
 				sf.name, sf.label, sf.value

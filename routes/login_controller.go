@@ -1,26 +1,19 @@
 package routes
 
 import (
-	"database/sql"
 	"io"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
-	"github.com/go-chi/oauth"
+	"github.com/mbolis/quick-survey/app"
 	"github.com/mbolis/quick-survey/httpx"
 	"github.com/mbolis/quick-survey/log"
 )
 
-func NewBearerServer(db *sql.DB) *oauth.BearerServer {
-	// TODO move secret and token ttl to config file
-	return oauth.NewBearerServer("secret", 120*time.Second, httpx.CredentialsVerifier(db), nil)
-}
-
-func Login(bearerServer *oauth.BearerServer) http.HandlerFunc {
+func Login(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
 		if !ok {
@@ -36,11 +29,11 @@ func Login(bearerServer *oauth.BearerServer) http.HandlerFunc {
 		r.Body = io.NopCloser(strings.NewReader(body.Encode()))
 		r.Header.Set("content-type", "application/x-www-form-urlencoded")
 		r.Header.Set("content-length", strconv.Itoa(len(body.Encode())))
-		bearerServer.UserCredentials(w, r)
+		app.UserCredentials(w, r)
 	}
 }
 
-func Refresh(bearerServer *oauth.BearerServer) http.HandlerFunc {
+func Refresh(app app.App) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("authorization")
 		match := regexp.MustCompile(`(?i)^refresh\s+(.*)`).FindStringSubmatch(auth)
@@ -64,7 +57,7 @@ func Refresh(bearerServer *oauth.BearerServer) http.HandlerFunc {
 		req.Header.Set("content-length", strconv.Itoa(len(body.Encode())))
 
 		resp := httpx.NewResponseBuffer()
-		bearerServer.UserCredentials(resp, req)
+		app.UserCredentials(resp, req)
 		resp.Flush(w)
 	}
 }
