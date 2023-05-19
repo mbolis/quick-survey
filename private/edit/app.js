@@ -471,7 +471,7 @@ async function startup() {
 
       const required = li.querySelector(".required");
       required.querySelector("label").htmlFor = "field_" + id + "_required";
-      Object.assign(label.querySelector("input"), {
+      Object.assign(required.querySelector("input"), {
         id: "field_" + id + "_label",
         oninput() {
           f.required = this.checked;

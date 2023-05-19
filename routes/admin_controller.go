@@ -386,6 +386,15 @@ func GetSurveySubmissions(app app.App) http.HandlerFunc {
 		}
 
 		submissions := []model.Submission{}
+		var dummy *string
+		rows.Scan(&dummy, &dummy, &dummy, &dummy, &dummy, &dummy)
+		if dummy == nil {
+			render.JSON(w, r, map[string]any{
+				"submissions": submissions,
+			})
+			return
+		}
+
 		for {
 			s := model.Submission{}
 			f := model.SubmissionField{}
