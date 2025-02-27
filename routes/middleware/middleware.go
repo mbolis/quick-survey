@@ -80,6 +80,7 @@ func CookieAuth(app app.App) func(http.Handler) http.Handler {
 
 			// XXX wanted to add this feature after a week... had to study how this function works again
 			loginLocation := "/login?goto=" + url.QueryEscape(r.RequestURI)
+			revokeCookie(w, "access_token")
 
 			// token was empty or unauthorized
 			refreshToken, err := r.Cookie("refresh_token")
@@ -114,13 +115,7 @@ func CookieAuth(app app.App) func(http.Handler) http.Handler {
 			if resp.Status() == 401 {
 				// redirect to login page
 				w.Header().Set("location", loginLocation)
-				http.SetCookie(w, &http.Cookie{
-					Path:     "/",
-					Name:     "refresh_token",
-					Value:    "",
-					MaxAge:   -1,
-					SameSite: http.SameSiteNoneMode,
-				})
+				revokeCookie(w, "refresh_token")
 				w.WriteHeader(http.StatusTemporaryRedirect)
 				return
 			}
@@ -141,6 +136,7 @@ func CookieAuth(app app.App) func(http.Handler) http.Handler {
 				Name:     "access_token",
 				Value:    responseBody["access_token"].(string),
 				MaxAge:   int(responseBody["expires_in"].(float64)),
+				HttpOnly: true,
 				SameSite: http.SameSiteNoneMode,
 			}
 			http.SetCookie(w, token)
@@ -150,6 +146,7 @@ func CookieAuth(app app.App) func(http.Handler) http.Handler {
 				Name:     "refresh_token",
 				Value:    responseBody["refresh_token"].(string),
 				MaxAge:   60 * 60 * 24 * 365,
+				HttpOnly: true,
 				SameSite: http.SameSiteNoneMode,
 			}
 			http.SetCookie(w, refreshToken)
@@ -158,4 +155,15 @@ func CookieAuth(app app.App) func(http.Handler) http.Handler {
 			h.ServeHTTP(w, r)
 		})
 	}
+}
+
+func revokeCookie(w http.ResponseWriter, name string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     name,
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	})
 }
